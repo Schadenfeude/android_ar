@@ -1,6 +1,7 @@
 package com.example.s0ld1.ar_poc;
 
 import android.Manifest;
+import android.animation.ObjectAnimator;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -10,6 +11,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
 
 import com.example.s0ld1.ar_poc.utils.ARUtils;
@@ -29,10 +31,16 @@ import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.ArSceneView;
 import com.google.ar.sceneform.HitTestResult;
 import com.google.ar.sceneform.Node;
+import com.google.ar.sceneform.math.Vector3;
+import com.google.ar.sceneform.math.Vector3Evaluator;
+import com.google.ar.sceneform.rendering.Color;
+import com.google.ar.sceneform.rendering.Light;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.rendering.Renderable;
 import com.google.ar.sceneform.rendering.ViewRenderable;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -53,6 +61,9 @@ public class MainActivity extends AppCompatActivity {
     private GestureDetector gestureDetector;
     private AnchorNode menuAnchorNode;
     private Anchor menuAnchor;
+
+    private Map<Renderable, AnchorNode> displayedObjects = new HashMap<>();
+    private Node animatedNode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -257,13 +268,29 @@ public class MainActivity extends AppCompatActivity {
         if (menuAnchor != null) {
             switch (view.getId()) {
                 case R.id.item_distillery:
-                    renderNodeForAnchor(distilRenderable, menuAnchor);
+                    if (displayedObjects.containsKey(distilRenderable)) {
+                        displayedObjects.get(distilRenderable).getAnchor().detach();
+                    }
+                    final Node distilleryNode = renderNodeForAnchor(distilRenderable, menuAnchor);
+                    distilleryNode.setOnTapListener((hitTestResult, motionEvent) ->
+                            animateNodeMovement(animatedNode, distilleryNode));
                     break;
                 case R.id.item_hay:
-                    renderNodeForAnchor(hayRenderable, menuAnchor);
+                    if (displayedObjects.containsKey(hayRenderable)) {
+                        displayedObjects.get(hayRenderable).getAnchor().detach();
+                    }
+                    final Node hayNode = renderNodeForAnchor(hayRenderable, menuAnchor);
+                    hayNode.setOnTapListener((hitTestResult, motionEvent) ->
+                            animateNodeMovement(animatedNode, hayNode));
                     break;
                 default:
-                    renderNodeForAnchor(andyRenderable, menuAnchor);
+                    if (displayedObjects.containsKey(andyRenderable)) {
+                        displayedObjects.get(andyRenderable).getAnchor().detach();
+                    }
+                    final Node andyNode = renderNodeForAnchor(andyRenderable, menuAnchor);
+                    lightUpAndy(andyNode);
+                    andyNode.setOnTapListener((hitTestResult, motionEvent) ->
+                            animatedNode = andyNode);
                     break;
             }
             // We don't have a menu displayed anymore
@@ -302,6 +329,30 @@ public class MainActivity extends AppCompatActivity {
         anchorNode.setParent(arSceneView.getScene());
         anchorNode.addChild(node);
 
+        displayedObjects.put(renderable, anchorNode);
+
         return node;
+    }
+
+    private void animateNodeMovement(Node start, Node destination) {
+        final ObjectAnimator movementAnimator = new ObjectAnimator();
+        final Vector3 startPosition = start.getLocalPosition();
+        final Vector3 endPosition = Vector3.subtract(destination.getWorldPosition(), start.getWorldPosition());
+
+        movementAnimator.setObjectValues(startPosition, endPosition);
+        movementAnimator.setPropertyName("localPosition");
+        movementAnimator.setEvaluator(new Vector3Evaluator());
+        movementAnimator.setInterpolator(new LinearInterpolator());
+        movementAnimator.setDuration(2000);
+        movementAnimator.setTarget(start);
+        movementAnimator.start();
+    }
+
+    private void lightUpAndy(Node andyNode) {
+        Light yellowSpotlight = Light.builder(Light.Type.SPOTLIGHT)
+                .setColor(new Color(android.graphics.Color.YELLOW))
+                .setShadowCastingEnabled(true)
+                .build();
+        andyNode.setLight(yellowSpotlight);
     }
 }
