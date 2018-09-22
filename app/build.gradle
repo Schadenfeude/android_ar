@@ -38,3 +38,20 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
+
+apply plugin: 'com.google.ar.sceneform.plugin'
+
+sceneform.asset('sampledata/andy/andy.gltf',
+        'default',
+        'sampledata/andy/andy.sfa',
+        'src/main/assets/andy')
+
+sceneform.asset('sampledata/distillery/distillery.gltf',
+        'default',
+        'sampledata/distillery/distillery.sfa',
+        'src/main/assets/distillery')
+
+sceneform.asset('sampledata/hay/hay.gltf',
+        'default',
+        'sampledata/hay/hay.sfa',
+        'src/main/assets/hay')
