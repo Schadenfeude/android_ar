@@ -150,7 +150,7 @@
       file: "sampledata/andy/andy.gltf",
       name: "andy",
       recenter: "root",
-      scale: 0.007918000000000000,
+      scale: 0.001918000000000000,
    },
    samplers: [
       {

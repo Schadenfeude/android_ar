@@ -284,7 +284,7 @@
       file: "sampledata/distillery/distillery.gltf",
       name: "distillery",
       recenter: "root",
-      scale: 0.015918000000000002,
+      scale: 0.001918000000000000,
    },
    samplers: [
       {

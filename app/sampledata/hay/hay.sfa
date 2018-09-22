@@ -83,7 +83,7 @@
       file: "sampledata/hay/hay.gltf",
       name: "hay",
       recenter: "root",
-      scale: 0.010038,
+      scale: 0.001918000000000000,
    },
    samplers: [
       {
